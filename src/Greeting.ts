@@ -1,17 +1,17 @@
-const NORMAL_GREETING_PREFIX = "Hello, "
-const SHOUTING_GREETING_PREFIX = "HELLO "
+const NORMAL_GREETING_PREFIX = "Hello, ";
+const SHOUTING_GREETING_PREFIX = "HELLO ";
 
-export function Greeting(name: string | null | string[]): string {
-  const names = getNameAsNames(name); 
+export function Greeting(peopleToGreet: string | null | string[]): string {
+  const names = getNamesFromPeople(peopleToGreet); 
 
   const normalNames: string[] = [];
   const shoutedNames: string[] = [];
-  names.forEach(n => {
-    if (IsShoutedName(n)) {
-      shoutedNames.push(n);
+  names.forEach(name => {
+    if (IsShoutedName(name)) {
+      shoutedNames.push(name);
     }
     else {
-      normalNames.push(n);
+      normalNames.push(name);
     }
   });
 
@@ -26,20 +26,45 @@ export function Greeting(name: string | null | string[]): string {
   }
 }
 
-function getNameAsNames(name: string | null | string[]): string[] {
-  if (name === null) {
-    return ["my friend"];
+function getNamesFromPeople(peopleToGreet: string | null | string[]): string[] {
+  let individualNames: string[] = []
+  if (peopleToGreet === null) {
+    individualNames.push("my friend");
   }
-  else if (Array.isArray(name)) {
-    return name;
+  else if (Array.isArray(peopleToGreet)) {
+    peopleToGreet.map(name => {
+      individualNames.push(...parseNameString(name));
+    });
   }
   else {
-    return [name];
+    individualNames = parseNameString(peopleToGreet);
   }
+
+  return individualNames;
+}
+
+function parseNameString(name: string): string[] {
+  const parsedNames: string[] = [];
+
+  const escapedNames = name.split("\"");
+
+  escapedNames.forEach((escapedName, index) => {
+    if (escapedName && index % 2 === 0) {
+      escapedName.split(",").map(n => {
+        const trimmedName = n.trim();
+        parsedNames.push(trimmedName);
+      });
+    }
+    else if (escapedName) {
+      parsedNames.push(escapedName);
+    }
+  });
+
+  return parsedNames;
 }
 
 function FormatNormalGreeting(names: string[]): string {
-  return NORMAL_GREETING_PREFIX + FormatNamesToGreeting(names) + "." 
+  return NORMAL_GREETING_PREFIX + FormatNamesToGreeting(names) + ".";
 }
 
 function FormatShoutedGreeting(names: string[]): string {
